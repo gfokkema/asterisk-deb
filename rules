@@ -18,7 +18,7 @@ DPKG_EXPORT_BUILDFLAGS = 1
 include /usr/share/dpkg/buildflags.mk
 
 # Sanity check for a stable release:
-SAVED_ABI_HASH = f450f61f60e761b3aa089ebed76ca8a5
+SAVED_ABI_HASH = da6642af068ee5e6490c5b1d2cc1d238
 
 export DEB_HOST_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
 export DEB_BUILD_GNU_TYPE ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
@@ -92,11 +92,11 @@ override_dh_auto_configure:
 		--mandir=\$${prefix}/share/man		\
 		--infodir=\$${prefix}/share/info	\
 		--disable-asteriskssl			\
-		--with-gsm				\
-		--with-imap=system			\
 		--without-pwlib				\
 		${ENABLE_DEBUG}
 
+#		--with-gsm				\
+#		--with-imap=system			\
 #		--with-cap \
 
 override_dh_auto_build:
@@ -107,7 +107,15 @@ override_dh_auto_build:
 	fi
 	# No BUILD_NATIVE for packages that are to be used on different hosts.
 	# See ASTERISK-25289.
-	@menuselect/menuselect --disable BUILD_NATIVE
+	@menuselect/menuselect --disable-all --disable BUILD_NATIVE --enable OPTIONAL_API \
+		--enable app_dial --enable app_dumpchan --enable app_fax \
+		--enable app_softhangup --enable app_exec \
+		--enable chan_iax2 --enable chan_sip \
+	        --enable codec_ulaw --enable codec_alaw \
+	        --enable func_callerid --enable func_strings \
+	        --enable pbx_config --enable pbx_spool \
+		--enable res_fax --enable res_fax_spandsp --enable res_rtp_asterisk --enable res_timing_timerfd
+
 	$(FETCH_ENV) dh_auto_build -- $(BUILDFLAGS)
 	# Sanity check: don't break the ABI for modules:
 	@abi_hash=`awk -F'"' '/AST_BUILDOPT_SUM/ {print $$2}' include/asterisk/buildopts.h`; \
@@ -157,19 +165,19 @@ override_dh_auto_install:
 
 override_dh_install:
 	dh_install
-	extra_packs=`find $(SUBPACKS_EXTRA_DIRS_MOD) -name '*.so' -printf '%f\n'`\
-		    ; cd $(CURDIR)/debian/asterisk-modules/usr/lib/asterisk/modules \
-		    && rm -f $$extra_packs
+	#extra_packs=`find $(SUBPACKS_EXTRA_DIRS_MOD) -name '*.so' -printf '%f\n'`\
+	#	    ; cd $(CURDIR)/debian/asterisk-modules/usr/lib/asterisk/modules \
+	#	    && rm -f $$extra_packs
 
 	# Copy default safe_asterisk config.
 	install -m644 -D $(CURDIR)/debian/examples/safe_asterisk/startup.d--mail-backtrace.sh \
 		$(CURDIR)/debian/asterisk-config/etc/asterisk/startup.d/mail-backtrace.sh
 
 	# Rename dh_install file for -imapstorage and -odbcstorage.
-	mv $(CURDIR)/debian/asterisk-voicemail-imapstorage/usr/lib/asterisk/modules/app_voicemail_imapstorage.so \
-		$(CURDIR)/debian/asterisk-voicemail-imapstorage/usr/lib/asterisk/modules/app_voicemail.so
-	mv $(CURDIR)/debian/asterisk-voicemail-odbcstorage/usr/lib/asterisk/modules/app_voicemail_odbcstorage.so \
-		$(CURDIR)/debian/asterisk-voicemail-odbcstorage/usr/lib/asterisk/modules/app_voicemail.so
+	#mv $(CURDIR)/debian/asterisk-voicemail-imapstorage/usr/lib/asterisk/modules/app_voicemail_imapstorage.so \
+	#	$(CURDIR)/debian/asterisk-voicemail-imapstorage/usr/lib/asterisk/modules/app_voicemail.so
+	#mv $(CURDIR)/debian/asterisk-voicemail-odbcstorage/usr/lib/asterisk/modules/app_voicemail_odbcstorage.so \
+	#	$(CURDIR)/debian/asterisk-voicemail-odbcstorage/usr/lib/asterisk/modules/app_voicemail.so
 
 override_dh_fixperms:
 	dh_fixperms

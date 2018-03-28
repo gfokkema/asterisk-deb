@@ -1,3 +1,9 @@
+asterisk (1:13.19.2-gntel1~stretch) jessie; urgency=low
+
+  * Bump version to 13.19.2.
+
+ -- Gerlof Fokkema <gerlof+asterdeb@gntel.nl>  Wed, 28 Mar 2018 22:24:50 +0100
+
 asterisk (1:11.25.1-osso1~jessie) jessie; urgency=low
 
   * Add a few patches:
