@@ -107,14 +107,15 @@ override_dh_auto_build:
 	fi
 	# No BUILD_NATIVE for packages that are to be used on different hosts.
 	# See ASTERISK-25289.
-	@menuselect/menuselect --disable-all --disable BUILD_NATIVE --enable OPTIONAL_API \
+	@menuselect/menuselect --disable-all \
+		--disable BUILD_NATIVE --enable OPTIONAL_API --enable astcanary \
 		--enable app_dial --enable app_dumpchan --enable app_fax \
 		--enable app_softhangup --enable app_exec \
 		--enable-category MENUSELECT_BRIDGES \
 		--enable chan_iax2 --enable chan_sip \
-	        --enable codec_ulaw --enable codec_alaw \
-	        --enable func_callerid --enable func_math --enable func_strings \
-	        --enable pbx_config --enable pbx_spool \
+		--enable codec_ulaw --enable codec_alaw \
+		--enable func_callerid --enable func_math --enable func_strings \
+		--enable pbx_config --enable pbx_spool \
 		--enable res_fax --enable res_fax_spandsp --enable res_rtp_asterisk --enable res_timing_timerfd
 
 	$(FETCH_ENV) dh_auto_build -- $(BUILDFLAGS)
